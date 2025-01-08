@@ -45,11 +45,11 @@ export default function CreateChannel() {
 
       if (participantError) throw participantError;
 
-      toast.success('Channel created successfully!');
+      toast.success('チャンネルの作成に成功しました');
       navigate(`/channels/${channel.id}`);
-    } catch (error: any) {
-      toast.error('Error creating channel');
+    } catch (error: unknown) {
       console.error('Create channel error:', error);
+      toast.error('チャンネルの作成に失敗しました');
     } finally {
       setLoading(false);
     }
@@ -60,13 +60,13 @@ export default function CreateChannel() {
       <div className="bg-white p-8 rounded-lg shadow-md">
         <div className="flex items-center justify-center mb-8">
           <Hash className="h-8 w-8 text-indigo-600 mr-2" />
-          <h1 className="text-2xl font-bold text-gray-900">Create Channel</h1>
+          <h1 className="text-2xl font-bold text-gray-900">チャンネル作成</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-              Channel Title
+              チャンネル名
             </label>
             <input
               id="title"
@@ -75,13 +75,13 @@ export default function CreateChannel() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              placeholder="Enter channel title"
+              placeholder="チャンネル名を入力"
             />
           </div>
 
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-              Description
+              説明
             </label>
             <textarea
               id="description"
@@ -89,7 +89,7 @@ export default function CreateChannel() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              placeholder="Describe what this channel is about"
+              placeholder="チャンネルの説明を入力"
             />
           </div>
 
@@ -98,7 +98,7 @@ export default function CreateChannel() {
             disabled={loading || !title.trim()}
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
           >
-            {loading ? 'Creating...' : 'Create Channel'}
+            {loading ? '作成中...' : 'チャンネル作成'}
           </button>
         </form>
       </div>

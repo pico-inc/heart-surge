@@ -20,6 +20,16 @@ interface Channel {
   title: string;
 }
 
+interface DatabaseMessage {
+  id: string;
+  content: string;
+  created_at: string;
+  sender_id: string;
+  sender: {
+    username: string;
+  };
+}
+
 export default function ChannelChat() {
   const { id } = useParams();
   const { user } = useAuth();
@@ -55,7 +65,11 @@ export default function ChannelChat() {
           if (senderData) {
             const messageWithSender = {
               ...payload.new,
-              sender: { username: senderData.username }
+              sender: { username: senderData.username },
+              id: payload.new.id,
+              content: payload.new.content,
+              created_at: payload.new.created_at,
+              sender_id: payload.new.sender_id
             };
             setMessages(prev => [...prev, messageWithSender]);
             messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -69,9 +83,13 @@ export default function ChannelChat() {
     };
   }, [id]);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
   const checkParticipation = async () => {
     if (!user) return;
-    
+
     try {
       const { count } = await supabase
         .from('channel_participants')
@@ -80,7 +98,7 @@ export default function ChannelChat() {
         .eq('user_id', user.id);
 
       setIsParticipant(count === 1);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error checking participation:', error);
       setIsParticipant(false);
     }
@@ -96,7 +114,8 @@ export default function ChannelChat() {
 
       if (error) throw error;
       setChannel(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      console.error('Error loading channel:', error);
       toast.error('Error loading channel');
     }
   };
@@ -113,13 +132,25 @@ export default function ChannelChat() {
           sender:profiles(username)
         `)
         .eq('channel_id', id)
-        .order('created_at');
+        .order('created_at') as {
+          data: DatabaseMessage[] | null;
+          error: unknown;
+        };
 
       if (error) throw error;
-      setMessages(data || []);
+
+      const formattedMessages = data?.map(message => ({
+        ...message,
+        sender: {
+          username: message.sender?.username || '不明なユーザー'
+        }
+      })) || [];
+
+      setMessages(formattedMessages);
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    } catch (error: any) {
-      toast.error('Error loading messages');
+    } catch (error: unknown) {
+      console.error('Error loading messages:', error);
+      toast.error('メッセージの読込みに失敗しました');
     } finally {
       setLoading(false);
     }
@@ -133,7 +164,7 @@ export default function ChannelChat() {
     setNewMessage('');
 
     try {
-      const { error } = await supabase
+      const { data: messageData, error } = await supabase
         .from('channel_messages')
         .insert([
           {
@@ -141,11 +172,35 @@ export default function ChannelChat() {
             sender_id: user.id,
             content: messageContent
           }
-        ]);
+        ])
+        .select(`
+          id,
+          content,
+          created_at,
+          sender_id,
+          sender:profiles(username)
+        `)
+        .single() as {
+          data: DatabaseMessage | null;
+          error: unknown;
+        };
 
       if (error) throw error;
-    } catch (error: any) {
-      toast.error('Error sending message');
+
+      if (messageData) {
+        const formattedMessage = {
+          ...messageData,
+          sender: {
+            username: messageData.sender?.username || '不明なユーザー'
+          }
+        };
+
+        setMessages(prev => [...prev, formattedMessage]);
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
+    } catch (error: unknown) {
+      console.error('Error sending message:', error);
+      toast.error('メッセジの送信に失敗しました');
     }
   };
 
@@ -179,7 +234,7 @@ export default function ChannelChat() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth">
           {messages.map((message) => (
             <div
               key={message.id}

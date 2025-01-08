@@ -23,28 +23,30 @@ export default function EditChannel() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    const fetchChannel = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('channels')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+
+        setChannel(data);
+        setTitle(data.title);
+        setDescription(data.description || '');
+      } catch (error: unknown) {
+        console.error('Error loading channel:', error);
+        toast.error('チャンネルの読み込みに失敗しました');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+
     fetchChannel();
   }, [id]);
-
-  const fetchChannel = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('channels')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      
-      setChannel(data);
-      setTitle(data.title);
-      setDescription(data.description || '');
-    } catch (error: any) {
-      toast.error('Error loading channel');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,11 +74,11 @@ export default function EditChannel() {
 
       if (error) throw error;
 
-      toast.success('Channel updated successfully!');
+      toast.success('チャンネルの更新に成功しました');
       navigate(`/channels/${id}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Update error:', error);
-      toast.error('Error updating channel');
+      toast.error('チャンネルの更新に失敗しました');
     } finally {
       setSaving(false);
     }
@@ -105,19 +107,19 @@ export default function EditChannel() {
         className="inline-flex items-center text-indigo-600 hover:text-indigo-500 mb-6"
       >
         <ArrowLeft className="h-4 w-4 mr-1" />
-        Back to Channel
+        チャンネル詳細に戻る
       </Link>
 
       <div className="bg-white p-8 rounded-lg shadow-md">
         <div className="flex items-center justify-center mb-8">
           <Hash className="h-8 w-8 text-indigo-600 mr-2" />
-          <h1 className="text-2xl font-bold text-gray-900">Edit Channel</h1>
+          <h1 className="text-2xl font-bold text-gray-900">チャンネル編集</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-              Channel Title
+              チャンネル名
             </label>
             <input
               id="title"
@@ -126,13 +128,13 @@ export default function EditChannel() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              placeholder="Enter channel title"
+              placeholder="チャンネル名を入力"
             />
           </div>
 
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-              Description
+              説明
             </label>
             <textarea
               id="description"
@@ -140,7 +142,7 @@ export default function EditChannel() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              placeholder="Describe what this channel is about"
+              placeholder="チャンネルの説明を入力"
             />
           </div>
 
@@ -149,7 +151,7 @@ export default function EditChannel() {
             disabled={saving || !title.trim()}
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
           >
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? '保存中...' : '保存'}
           </button>
         </form>
       </div>

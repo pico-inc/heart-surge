@@ -15,11 +15,27 @@ interface User {
   created_at: string;
 }
 
+interface DatabaseChannel {
+  id: string;
+  title: string;
+  owner_id: string;
+  participant_count: Array<{ count: number }>;
+}
+
 interface Channel {
   id: string;
   title: string;
+  owner_id: string;
   participant_count: number;
-  owner_id?: string;
+}
+
+interface JoinedChannelData {
+  channel: {
+    id: string;
+    title: string;
+    owner_id: string;
+    participant_count: Array<{ count: number }>;
+  };
 }
 
 export default function UserDetail() {
@@ -32,79 +48,84 @@ export default function UserDetail() {
   const [ownedChannels, setOwnedChannels] = useState<Channel[]>([]);
 
   useEffect(() => {
-    fetchUser();
-    fetchChannels();
-  }, [id]);
+    const fetchUser = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', id)
+          .single();
 
-  const fetchUser = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', id)
-        .single();
+        if (error) throw error;
+        setUser(data);
+      } catch (error: unknown) {
+        console.error(error);
+        toast.error('ユーザー情報の読み込みに失敗しました');
+      }
+    };
 
-      if (error) throw error;
-      setUser(data);
-    } catch (error: any) {
-      toast.error('Error loading user profile');
-    }
-  };
+    const fetchChannels = async () => {
+      if (!id) return;
 
-  const fetchChannels = async () => {
-    if (!id) return;
-
-    try {
-      // Fetch owned channels first
-      const { data: ownedData, error: ownedError } = await supabase
-        .from('channels')
-        .select(`
-          id,
-          title,
-          owner_id,
-          participant_count:channel_participants(count)
-        `)
-        .eq('owner_id', id);
-
-      if (ownedError) throw ownedError;
-
-      const ownedChannelIds = new Set(ownedData?.map(channel => channel.id) || []);
-
-      // Fetch joined channels
-      const { data: joinedData, error: joinedError } = await supabase
-        .from('channel_participants')
-        .select(`
-          channel:channels (
+      try {
+        const { data: ownedData, error: ownedError } = await supabase
+          .from('channels')
+          .select(`
             id,
             title,
             owner_id,
             participant_count:channel_participants(count)
-          )
-        `)
-        .eq('user_id', id);
+          `)
+          .eq('owner_id', id) as {
+            data: DatabaseChannel[] | null;
+            error: unknown;
+          };
 
-      if (joinedError) throw joinedError;
+        if (ownedError) throw ownedError;
 
-      setOwnedChannels(ownedData?.map(channel => ({
-        ...channel,
-        participant_count: channel.participant_count[0].count
-      })) || []);
+        const ownedChannelIds = new Set(ownedData?.map(channel => channel.id) || []);
 
-      // Filter out owned channels from joined channels
-      const filteredJoinedChannels = joinedData
-        ?.filter(item => !ownedChannelIds.has(item.channel.id))
-        .map(item => ({
-          ...item.channel,
-          participant_count: item.channel.participant_count[0].count
-        })) || [];
+        const { data: joinedData, error: joinedError } = await supabase
+          .from('channel_participants')
+          .select(`
+            channel:channels (
+              id,
+              title,
+              owner_id,
+              participant_count:channel_participants(count)
+            )
+          `)
+          .eq('user_id', id) as {
+            data: JoinedChannelData[] | null;
+            error: unknown;
+          };
 
-      setJoinedChannels(filteredJoinedChannels);
-    } catch (error: any) {
-      toast.error('Error loading channels');
-    } finally {
-      setLoading(false);
-    }
-  };
+        if (joinedError) throw joinedError;
+
+        setOwnedChannels(ownedData?.map(channel => ({
+          ...channel,
+          participant_count: channel.participant_count[0]?.count ?? 0
+        })) || []);
+
+        const filteredJoinedChannels = joinedData
+          ?.filter(item => !ownedChannelIds.has(item.channel.id))
+          .map(item => ({
+            ...item.channel,
+            participant_count: item.channel.participant_count[0]?.count ?? 0
+          })) || [];
+
+        setJoinedChannels(filteredJoinedChannels);
+      } catch (error: unknown) {
+        console.error(error);
+        toast.error('チャンネルの読み込みに失敗しました');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+    fetchChannels();
+  }, [id]);
 
   const startChat = async () => {
     if (!currentUser || !id) return;
@@ -124,7 +145,7 @@ export default function UserDetail() {
       // If there are existing chats, check if any of them include the target user
       if (existingChats && existingChats.length > 0) {
         const chatIds = existingChats.map(chat => chat.chat_id);
-        
+
         const { data: sharedChats, error: sharedChatsError } = await supabase
           .from('chat_participants')
           .select('chat_id')
@@ -161,9 +182,9 @@ export default function UserDetail() {
 
       // Navigate to the new chat
       navigate(`/chats/${newChat.id}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Chat error:', error);
-      toast.error('Error starting chat');
+      toast.error('チャットの作成に失敗しました');
     }
   };
 
@@ -178,9 +199,9 @@ export default function UserDetail() {
   if (!user) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-600">User not found</p>
+        <p className="text-gray-600">ユーザーが見つかりません</p>
         <Link to="/users" className="text-indigo-600 hover:text-indigo-500 mt-4 inline-block">
-          Back to Members
+          メンバー一覧へ戻る
         </Link>
       </div>
     );
@@ -193,7 +214,7 @@ export default function UserDetail() {
         className="inline-flex items-center text-indigo-600 hover:text-indigo-500"
       >
         <ArrowLeft className="h-4 w-4 mr-1" />
-        Back to Members
+        メンバー一覧へ戻る
       </Link>
 
       {/* User Profile */}
@@ -217,7 +238,7 @@ export default function UserDetail() {
                 className="bg-white text-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-50 transition-colors flex items-center space-x-2"
               >
                 <MessageCircle className="h-5 w-5" />
-                <span>Message</span>
+                <span>メッセージ</span>
               </button>
             )}
           </div>
@@ -227,27 +248,27 @@ export default function UserDetail() {
           {user.prefecture && (
             <div className="flex items-center space-x-3 text-gray-600">
               <MapPin className="h-5 w-5" />
-              <span>Lives in {user.prefecture}</span>
+              <span>住んでいる都道府県: {user.prefecture}</span>
             </div>
           )}
 
           {user.occupation && (
             <div className="flex items-center space-x-3 text-gray-600">
               <Briefcase className="h-5 w-5" />
-              <span>{user.occupation}</span>
+              <span>職業: {user.occupation}</span>
             </div>
           )}
 
           <div className="flex items-center space-x-3 text-gray-600">
             <Calendar className="h-5 w-5" />
-            <span>Joined {new Date(user.created_at).toLocaleDateString()}</span>
+            <span>登録日: {new Date(user.created_at).toLocaleDateString()}</span>
           </div>
         </div>
       </div>
 
       {/* Owned Channels */}
       <div className="bg-white p-8 rounded-lg shadow-md">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Created Channels</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">作成したチャンネル</h2>
         <div className="grid gap-4">
           {ownedChannels.map((channel) => (
             <Link
@@ -260,13 +281,13 @@ export default function UserDetail() {
                 <span className="font-medium">{channel.title}</span>
               </div>
               <span className="text-sm text-gray-600">
-                {channel.participant_count} members
+                {channel.participant_count} 人
               </span>
             </Link>
           ))}
           {ownedChannels.length === 0 && (
             <p className="text-gray-600 text-center py-4">
-              No channels created yet
+              作成したチャンネルはありません
             </p>
           )}
         </div>
@@ -274,7 +295,7 @@ export default function UserDetail() {
 
       {/* Joined Channels */}
       <div className="bg-white p-8 rounded-lg shadow-md">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Joined Channels</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">参加しているチャンネル</h2>
         <div className="grid gap-4">
           {joinedChannels.map((channel) => (
             <Link
@@ -287,13 +308,13 @@ export default function UserDetail() {
                 <span className="font-medium">{channel.title}</span>
               </div>
               <span className="text-sm text-gray-600">
-                {channel.participant_count} members
+                {channel.participant_count} 人
               </span>
             </Link>
           ))}
           {joinedChannels.length === 0 && (
             <p className="text-gray-600 text-center py-4">
-              No channels joined yet
+              参加しているチャンネルはありません
             </p>
           )}
         </div>

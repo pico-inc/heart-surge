@@ -22,10 +22,11 @@ export default function Login() {
 
       if (error) throw error;
 
-      toast.success('Successfully logged in!');
-      navigate('/');
-    } catch (error: any) {
-      toast.error(error.message);
+      toast.success('ログインに成功しました');
+      navigate('/profile');
+    } catch (error: unknown) {
+      console.error('Login error:', error);
+      toast.error('ログインに失敗しました');
     } finally {
       setLoading(false);
     }
@@ -36,13 +37,13 @@ export default function Login() {
       <div className="bg-white p-8 rounded-lg shadow-md">
         <div className="flex items-center justify-center mb-8">
           <LogIn className="h-8 w-8 text-indigo-600 mr-2" />
-          <h1 className="text-2xl font-bold text-gray-900">Login</h1>
+          <h1 className="text-2xl font-bold text-gray-900">ログイン</h1>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email
+              メールアドレス
             </label>
             <input
               id="email"
@@ -56,7 +57,7 @@ export default function Login() {
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
+              パスワード
             </label>
             <input
               id="password"
@@ -73,14 +74,14 @@ export default function Login() {
             disabled={loading}
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
           >
-            {loading ? 'Loading...' : 'Login'}
+            {loading ? 'ログイン中...' : 'ログイン'}
           </button>
         </form>
 
         <p className="mt-4 text-center text-sm text-gray-600">
-          Don't have an account?{' '}
+          アカウントをお持ちでない方は{' '}
           <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-            Register here
+            こちらから登録
           </Link>
         </p>
       </div>

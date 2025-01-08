@@ -8,16 +8,15 @@ export default function Home() {
       {/* Hero Section */}
       <section className="text-center py-20 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-3xl">
         <div className="container mx-auto px-4">
-          <h1 className="text-5xl font-bold mb-6">Connect, Share, and Support Each Other</h1>
+          <h1 className="text-5xl font-bold mb-6">ハートサージ</h1>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Join our inclusive community where people with disabilities can connect, share experiences, 
-            and find support in a safe and welcoming environment.
+            障害を持つ人たちがつながり、経験を共有し、サポートを受けることができるコミュニティに参加しましょう。
           </p>
           <Link
             to="/register"
             className="bg-white text-indigo-600 px-8 py-3 rounded-full font-semibold text-lg hover:bg-gray-100 transition-colors"
           >
-            Join Our Community
+            コミュニティに参加する
           </Link>
         </div>
       </section>
@@ -25,27 +24,27 @@ export default function Home() {
       {/* Features Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Why Join Our Community?</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">なぜコミュニティに参加するのか？</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <FeatureCard
               icon={<Users className="h-10 w-10 text-indigo-600" />}
-              title="Connect with Others"
-              description="Meet people who understand your experiences and build meaningful connections."
+              title="つながり"
+              description="障害を持つ人たちがつながり、経験を共有し、サポートを受けることができるコミュニティに参加しましょう。"
             />
             <FeatureCard
               icon={<MessageCircle className="h-10 w-10 text-indigo-600" />}
-              title="Safe Communication"
-              description="Engage in private conversations and group discussions in a secure environment."
+              title="安全なコミュニケーション"
+              description="セキュアな環境で、個人の会話やグループディスカッションを行いましょう。"
             />
             <FeatureCard
               icon={<Accessibility className="h-10 w-10 text-indigo-600" />}
-              title="Share Resources"
-              description="Exchange information about assistive devices and support services."
+              title="リソースの共有"
+              description="障害を持つ人たちがつながり、経験を共有し、サポートを受けることができるコミュニティに参加しましょう。"
             />
             <FeatureCard
               icon={<Shield className="h-10 w-10 text-indigo-600" />}
-              title="Privacy First"
-              description="Your privacy and security are our top priorities with strong data protection."
+              title="プライバシーを尊重"
+              description="プライバシーとセキュリティを尊重しましょう。"
             />
           </div>
         </div>

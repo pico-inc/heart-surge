@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { User as UserIcon, MapPin, Briefcase } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -18,24 +18,26 @@ export default function Users() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .order('username');
+
+        if (error) throw error;
+        setUsers(data || []);
+      } catch (error: unknown) {
+        console.error(error);
+        toast.error('ユーザーの読み込みに失敗しました');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+
     fetchUsers();
   }, []);
-
-  const fetchUsers = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('username');
-
-      if (error) throw error;
-      setUsers(data || []);
-    } catch (error: any) {
-      toast.error('Error loading users');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -47,8 +49,8 @@ export default function Users() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Community Members</h1>
-      
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">メンバー一覧</h1>
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {users.map((user) => (
           <Link
@@ -67,14 +69,14 @@ export default function Users() {
                 )}
               </div>
             </div>
-            
+
             {user.prefecture && (
               <div className="flex items-center space-x-2 text-gray-600 mb-2">
                 <MapPin className="h-4 w-4" />
                 <span className="text-sm">{user.prefecture}</span>
               </div>
             )}
-            
+
             {user.occupation && (
               <div className="flex items-center space-x-2 text-gray-600">
                 <Briefcase className="h-4 w-4" />
@@ -87,7 +89,7 @@ export default function Users() {
 
       {users.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-600">No users found</p>
+          <p className="text-gray-600">ユーザーが見つかりません</p>
         </div>
       )}
     </div>

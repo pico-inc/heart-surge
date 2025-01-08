@@ -18,9 +18,9 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-2 min-w-0">
             <Users className="h-8 w-8 shrink-0 text-indigo-600" />
-            <span className="text-xl font-bold text-gray-800 truncate">DisabilityCommunity</span>
+            <span className="text-xl font-bold text-gray-800 truncate">ハートサージ</span>
           </Link>
-          
+
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-4">
             {user && (
@@ -30,21 +30,21 @@ export default function Navbar() {
                   className="flex items-center space-x-1 text-gray-700 hover:text-indigo-600"
                 >
                   <Users className="h-5 w-5" />
-                  <span>Members</span>
+                  <span>メンバー</span>
                 </Link>
                 <Link
                   to="/channels"
                   className="flex items-center space-x-1 text-gray-700 hover:text-indigo-600"
                 >
                   <Hash className="h-5 w-5" />
-                  <span>Channels</span>
+                  <span>チャンネル</span>
                 </Link>
                 <Link
                   to="/chats"
                   className="flex items-center space-x-1 text-gray-700 hover:text-indigo-600"
                 >
                   <MessageCircle className="h-5 w-5" />
-                  <span>Messages</span>
+                  <span>メッセージ</span>
                 </Link>
               </>
             )}
@@ -55,14 +55,14 @@ export default function Navbar() {
                   className="flex items-center space-x-1 text-gray-700 hover:text-indigo-600"
                 >
                   <User className="h-5 w-5" />
-                  <span>Profile</span>
+                  <span>プロフィール</span>
                 </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center space-x-1 text-gray-700 hover:text-indigo-600"
                 >
                   <LogOut className="h-5 w-5" />
-                  <span>Logout</span>
+                  <span>ログアウト</span>
                 </button>
               </>
             ) : (
@@ -72,21 +72,21 @@ export default function Navbar() {
                   className="flex items-center space-x-1 text-gray-700 hover:text-indigo-600"
                 >
                   <LogIn className="h-5 w-5" />
-                  <span>Login</span>
+                  <span>ログイン</span>
                 </Link>
                 <Link
                   to="/register"
                   className="flex items-center space-x-1 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
                 >
                   <UserPlus className="h-5 w-5" />
-                  <span>Register</span>
+                  <span>新規登録</span>
                 </Link>
               </>
             )}
           </div>
 
           {/* Mobile Menu Button */}
-          <button 
+          <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden p-2 rounded-md hover:bg-gray-100"
           >
@@ -105,7 +105,7 @@ export default function Navbar() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <Users className="h-5 w-5" />
-                  <span>Members</span>
+                  <span>メンバー</span>
                 </Link>
                 <Link
                   to="/channels"
@@ -113,7 +113,7 @@ export default function Navbar() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <Hash className="h-5 w-5" />
-                  <span>Channels</span>
+                  <span>チャンネル</span>
                 </Link>
                 <Link
                   to="/chats"
@@ -121,7 +121,7 @@ export default function Navbar() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <MessageCircle className="h-5 w-5" />
-                  <span>Messages</span>
+                  <span>メッセージ</span>
                 </Link>
               </>
             )}
@@ -133,7 +133,7 @@ export default function Navbar() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <User className="h-5 w-5" />
-                  <span>Profile</span>
+                  <span>プロフィール</span>
                 </Link>
                 <button
                   onClick={() => {
@@ -143,7 +143,7 @@ export default function Navbar() {
                   className="flex items-center space-x-1 w-full px-2 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
                 >
                   <LogOut className="h-5 w-5" />
-                  <span>Logout</span>
+                  <span>ログアウト</span>
                 </button>
               </div>
             ) : (
@@ -154,7 +154,7 @@ export default function Navbar() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <LogIn className="h-5 w-5" />
-                  <span>Login</span>
+                  <span>ログイン</span>
                 </Link>
                 <Link
                   to="/register"
@@ -162,7 +162,7 @@ export default function Navbar() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <UserPlus className="h-5 w-5" />
-                  <span>Register</span>
+                  <span>新規登録</span>
                 </Link>
               </div>
             )}

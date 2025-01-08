@@ -41,9 +41,9 @@ export default function Channels() {
         ...channel,
         participant_count: channel.participant_count[0].count
       })));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error loading channels:', error);
-      toast.error('Error loading channels');
+      toast.error('チャンネルの読み込みに失敗しました');
     } finally {
       setLoading(false);
     }
@@ -60,16 +60,16 @@ export default function Channels() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Channels</h1>
+        <h1 className="text-3xl font-bold text-gray-900">チャンネル一覧</h1>
         <Link
           to="/channels/create"
           className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
         >
           <Plus className="h-5 w-5 mr-2" />
-          Create Channel
+          チャンネルを作成
         </Link>
       </div>
-      
+
       <div className="grid gap-6 md:grid-cols-2">
         {channels.map((channel) => (
           <Link
@@ -83,16 +83,16 @@ export default function Channels() {
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">{channel.title}</h2>
-                <p className="text-sm text-gray-600">Created by {channel.owner.username}</p>
+                <p className="text-sm text-gray-600">作成者: {channel.owner.username}</p>
               </div>
             </div>
-            
+
             {channel.description && (
               <p className="text-gray-600 mb-4 line-clamp-2">{channel.description}</p>
             )}
-            
+
             <div className="flex items-center justify-between text-sm text-gray-600">
-              <span>{channel.participant_count} members</span>
+              <span>{channel.participant_count} メンバー</span>
               <span>{new Date(channel.created_at).toLocaleDateString()}</span>
             </div>
           </Link>
@@ -102,12 +102,12 @@ export default function Channels() {
       {channels.length === 0 && (
         <div className="text-center py-12 bg-white rounded-lg shadow-md">
           <Hash className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">No channels yet</p>
+          <p className="text-gray-600">チャンネルはありません</p>
           <Link
             to="/channels/create"
             className="mt-4 inline-flex items-center text-indigo-600 hover:text-indigo-500"
           >
-            Create the first channel
+            チャンネルを作成
           </Link>
         </div>
       )}

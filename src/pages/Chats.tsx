@@ -15,62 +15,92 @@ interface Chat {
   }[];
 }
 
+interface ChatParticipant {
+  chat: {
+    id: string;
+    last_message: string | null;
+    last_message_at: string;
+  };
+}
+
+interface PartnerData {
+  user: {
+    id: string;
+    username: string;
+  };
+}
+
 export default function Chats() {
   const { user } = useAuth();
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchChats = async () => {
+      try {
+        // 1. 自分が参加しているチャットを取得
+        const { data: myChats, error: myChatsError } = await supabase
+          .from('chat_participants')
+          .select(`
+            chat:chats (
+              id,
+              last_message,
+              last_message_at
+            )
+          `)
+          .eq('user_id', user?.id) as {
+            data: ChatParticipant[] | null;
+            error: Error | null;
+          };
+
+        if (myChatsError) throw myChatsError;
+
+        // 2. 各チャットの相手の情報を取得
+        const chatPromises = myChats!.map(async (chat) => {
+          const { data: partnerData, error: partnerError } = await supabase
+            .from('chat_participants')
+            .select(`
+              user:profiles (
+                id,
+                username
+              )
+            `)
+            .eq('chat_id', chat.chat.id)
+            .neq('user_id', user?.id)
+            .single() as {
+              data: PartnerData;
+              error: Error | null;
+            };
+
+          if (partnerError) throw partnerError;
+
+          return {
+            id: chat.chat.id,
+            last_message: chat.chat.last_message,
+            last_message_at: chat.chat.last_message_at,
+            participants: [partnerData.user]
+          };
+        });
+
+        const formattedChats = await Promise.all(chatPromises);
+
+        // 型アサーションを使用して、formattedChatsがChat[]型であることを保証
+        const typedChats = formattedChats as unknown as Chat[];
+
+        setChats(typedChats.sort((a, b) =>
+          new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()
+        ));
+
+      } catch (error: unknown) {
+        console.error('Error loading chats:', error);
+        toast.error('チャットの読み込みに失敗しました');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchChats();
-  }, []);
-
-  const fetchChats = async () => {
-    try {
-      const { data: chatData, error: chatError } = await supabase
-        .from('chat_participants')
-        .select(`
-          chat:chats (
-            id,
-            last_message,
-            last_message_at
-          ),
-          profiles!chat_participants_user_id_fkey (
-            id,
-            username
-          )
-        `)
-        .eq('user_id', user?.id);
-
-      if (chatError) throw chatError;
-
-      // Transform the data into the required format
-      const formattedChats = chatData.reduce((acc: Chat[], participant) => {
-        const existingChat = acc.find(c => c.id === participant.chat.id);
-        if (existingChat) {
-          if (participant.profiles.id !== user?.id) {
-            existingChat.participants.push(participant.profiles);
-          }
-        } else {
-          acc.push({
-            id: participant.chat.id,
-            last_message: participant.chat.last_message,
-            last_message_at: participant.chat.last_message_at,
-            participants: participant.profiles.id !== user?.id ? [participant.profiles] : []
-          });
-        }
-        return acc;
-      }, []);
-
-      setChats(formattedChats.sort((a, b) => 
-        new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()
-      ));
-    } catch (error: any) {
-      console.error('Error loading chats:', error);
-      toast.error('Error loading chats');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [user?.id]);
 
   if (loading) {
     return (
@@ -82,7 +112,7 @@ export default function Chats() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Messages</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">チャット一覧</h1>
 
       <div className="space-y-4">
         {chats.map((chat) => (

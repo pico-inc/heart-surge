@@ -10,9 +10,6 @@ interface Message {
   content: string;
   created_at: string;
   sender_id: string;
-  sender: {
-    username: string;
-  };
 }
 
 interface ChatParticipant {
@@ -30,8 +27,49 @@ export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const { data: messagesData, error: messagesError } = await supabase
+          .from('messages')
+          .select(`
+            id,
+            content,
+            created_at,
+            sender_id,
+            sender:profiles(username)
+          `)
+          .eq('chat_id', id)
+          .order('created_at');
+
+        if (messagesError) throw messagesError;
+
+        // Fetch participant
+        const { data: participantData, error: participantError } = await supabase
+          .from('chat_participants')
+          .select(`
+            profiles(
+              id,
+              username
+            )
+          `)
+          .eq('chat_id', id)
+          .neq('user_id', user?.id)
+          .single();
+
+        if (participantError) throw participantError;
+
+        setMessages(messagesData || []);
+        setParticipant(participantData.profiles as unknown as ChatParticipant);
+      } catch (error: unknown) {
+        console.error('Error loading messages:', error);
+        toast.error('メッセージの読み込みに失敗しました');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchMessages();
-    
+
     // Subscribe to new messages
     const channel = supabase
       .channel('chat-messages')
@@ -45,7 +83,7 @@ export default function Chat() {
         },
         async (payload) => {
           const newMessage = payload.new as Message;
-          
+
           // Fetch the sender information
           const { data: senderData } = await supabase
             .from('profiles')
@@ -58,7 +96,7 @@ export default function Chat() {
               ...newMessage,
               sender: { username: senderData.username }
             };
-            
+
             setMessages(prev => [...prev, messageWithSender]);
             messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
           }
@@ -70,47 +108,6 @@ export default function Chat() {
       supabase.removeChannel(channel);
     };
   }, [id]);
-
-  const fetchMessages = async () => {
-    try {
-      // Fetch messages
-      const { data: messagesData, error: messagesError } = await supabase
-        .from('messages')
-        .select(`
-          id,
-          content,
-          created_at,
-          sender_id,
-          sender:profiles(username)
-        `)
-        .eq('chat_id', id)
-        .order('created_at');
-
-      if (messagesError) throw messagesError;
-
-      // Fetch participant
-      const { data: participantData, error: participantError } = await supabase
-        .from('chat_participants')
-        .select(`
-          profiles(
-            id,
-            username
-          )
-        `)
-        .eq('chat_id', id)
-        .neq('user_id', user?.id)
-        .single();
-
-      if (participantError) throw participantError;
-
-      setMessages(messagesData || []);
-      setParticipant(participantData.profiles);
-    } catch (error: any) {
-      toast.error('Error loading messages');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,12 +133,14 @@ export default function Chat() {
           sender_id,
           sender:profiles(username)
         `)
-        .single();
+        .single() as {
+          data: Message | null;
+          error: unknown;
+        };
 
       if (messageError) throw messageError;
 
       if (messageData) {
-        // Optimistically add the message to the UI
         setMessages(prev => [...prev, messageData]);
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       }
@@ -155,11 +154,15 @@ export default function Chat() {
         .eq('id', id);
 
       if (updateError) throw updateError;
-    } catch (error: any) {
-      toast.error('Error sending message');
-      console.error('Send message error:', error);
+    } catch (error: unknown) {
+      console.error('Error sending message:', error);
+      toast.error('メッセジの送信に失敗しました');
     }
   };
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   if (loading) {
     return (
@@ -184,7 +187,7 @@ export default function Chat() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth">
           {messages.map((message) => (
             <div
               key={message.id}
