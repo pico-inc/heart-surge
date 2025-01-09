@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { User as UserIcon, MapPin, Briefcase, Calendar, ArrowLeft, MessageCircle, Hash } from 'lucide-react';
+import { User as UserIcon, MapPin, Briefcase, Calendar, ArrowLeft, MessageCircle, Hash, Headphones } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
@@ -15,6 +15,7 @@ interface User {
   age_group: string;
   occupation: string;
   avatar_url: string;
+  device_info: string;
   created_at: string;
 }
 
@@ -259,6 +260,13 @@ export default function UserDetail() {
             <div className="flex items-center space-x-3 text-gray-600">
               <Briefcase className="h-5 w-5" />
               <span>職業: {getOccupationName(user.occupation)}</span>
+            </div>
+          )}
+
+          {user.device_info && (
+            <div className="flex items-center space-x-3 text-gray-600">
+              <Headphones className="h-5 w-5" />
+              <span>使用している支援機器: {user.device_info}</span>
             </div>
           )}
 
