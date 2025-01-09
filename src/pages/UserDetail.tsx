@@ -4,6 +4,9 @@ import { User as UserIcon, MapPin, Briefcase, Calendar, ArrowLeft, MessageCircle
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
+import { getPrefectureName } from '../utils/prefecture';
+import { getAgeGroupName } from '../utils/ageGroup';
+import { getOccupationName } from '../utils/occupation';
 
 interface User {
   id: string;
@@ -228,7 +231,7 @@ export default function UserDetail() {
               <div>
                 <h1 className="text-2xl font-bold text-white">{user.username}</h1>
                 {user.age_group && (
-                  <span className="text-indigo-100">{user.age_group}</span>
+                  <span className="text-indigo-100">{getAgeGroupName(user.age_group)}</span>
                 )}
               </div>
             </div>
@@ -248,14 +251,14 @@ export default function UserDetail() {
           {user.prefecture && (
             <div className="flex items-center space-x-3 text-gray-600">
               <MapPin className="h-5 w-5" />
-              <span>住んでいる都道府県: {user.prefecture}</span>
+              <span>住んでいる都道府県: {getPrefectureName(user.prefecture)}</span>
             </div>
           )}
 
           {user.occupation && (
             <div className="flex items-center space-x-3 text-gray-600">
               <Briefcase className="h-5 w-5" />
-              <span>職業: {user.occupation}</span>
+              <span>職業: {getOccupationName(user.occupation)}</span>
             </div>
           )}
 

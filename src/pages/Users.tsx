@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { User as UserIcon, MapPin, Briefcase } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
+import { getPrefectureName } from '../utils/prefecture';
+import { getAgeGroupName } from '../utils/ageGroup';
+import { getOccupationName } from '../utils/occupation';
 
 interface User {
   id: string;
@@ -65,7 +68,7 @@ export default function Users() {
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">{user.username}</h2>
                 {user.age_group && (
-                  <span className="text-sm text-gray-600">{user.age_group}</span>
+                  <span className="text-sm text-gray-600">{getAgeGroupName(user.age_group)}</span>
                 )}
               </div>
             </div>
@@ -73,14 +76,14 @@ export default function Users() {
             {user.prefecture && (
               <div className="flex items-center space-x-2 text-gray-600 mb-2">
                 <MapPin className="h-4 w-4" />
-                <span className="text-sm">{user.prefecture}</span>
+                <span className="text-sm">{getPrefectureName(user.prefecture)}</span>
               </div>
             )}
 
             {user.occupation && (
               <div className="flex items-center space-x-2 text-gray-600">
                 <Briefcase className="h-4 w-4" />
-                <span className="text-sm">{user.occupation}</span>
+                <span className="text-sm">{getOccupationName(user.occupation)}</span>
               </div>
             )}
           </Link>

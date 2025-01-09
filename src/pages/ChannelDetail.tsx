@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Hash, ArrowLeft, MessageCircle, Users, User, Settings } from 'lucide-react';
+import { Hash, ArrowLeft, MessageCircle, Users, User, Settings, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
@@ -141,6 +141,29 @@ export default function ChannelDetail() {
     }
   };
 
+  const handleDeleteChannel = async () => {
+    if (!user || !channel || user.id !== channel.owner_id) return;
+
+    if (!window.confirm('このチャンネルを削除しますか？\n※この操作は取り消せません。')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('channels')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success('チャンネルを削除しました');
+      navigate('/channels');
+    } catch (error: unknown) {
+      console.error('Error deleting channel:', error);
+      toast.error('チャンネルの削除に失敗しました');
+    }
+  };
+
   const goToChat = () => {
     navigate(`/channels/${id}/chat`);
   };
@@ -195,13 +218,22 @@ export default function ChannelDetail() {
             </div>
             <div className="flex items-center space-x-3">
               {user?.id === channel.owner_id && (
-                <Link
-                  to={`/channels/${id}/edit`}
-                  className="bg-white text-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-50 transition-colors flex items-center space-x-2 shrink-0"
-                >
-                  <Settings className="h-5 w-5" />
-                  <span className="hidden sm:inline">チャンネル編集</span>
-                </Link>
+                <>
+                  <Link
+                    to={`/channels/${id}/edit`}
+                    className="bg-white text-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-50 transition-colors flex items-center space-x-2 shrink-0"
+                  >
+                    <Settings className="h-5 w-5" />
+                    <span className="hidden sm:inline">チャンネル編集</span>
+                  </Link>
+                  <button
+                    onClick={handleDeleteChannel}
+                    className="bg-white text-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition-colors flex items-center space-x-2 shrink-0"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                    <span className="hidden sm:inline">チャンネル削除</span>
+                  </button>
+                </>
               )}
               {isParticipant && (
                 <button
