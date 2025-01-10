@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Users, MessageCircle, Accessibility, Shield } from 'lucide-react';
+import { Users, MessageCircle, Shield, BookOpen } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -10,7 +10,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <h1 className="text-5xl font-bold mb-6">ハートサージ</h1>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            障害を持つ人たちがつながり、経験を共有し、サポートを受けることができるコミュニティに参加しましょう。
+            聴覚活用で育ってきた難聴者同士がつながり、難聴者同士だからこそ話せたり、経験を共有し合えるコミュニティに参加しましょう。
           </p>
           <Link
             to="/register"
@@ -29,17 +29,17 @@ export default function Home() {
             <FeatureCard
               icon={<Users className="h-10 w-10 text-indigo-600" />}
               title="つながり"
-              description="障害を持つ人たちがつながり、経験を共有し、サポートを受けることができるコミュニティに参加しましょう。"
+              description="同じ経験を持つ仲間とつながり、お互いの体験や気持ちを共有できます。一人じゃないことを実感できるコミュニティです。"
             />
             <FeatureCard
               icon={<MessageCircle className="h-10 w-10 text-indigo-600" />}
               title="安全なコミュニケーション"
-              description="セキュアな環境で、個人の会話やグループディスカッションを行いましょう。"
+              description="安心できる環境で、個人の会話や交流を行いましょう。"
             />
             <FeatureCard
-              icon={<Accessibility className="h-10 w-10 text-indigo-600" />}
-              title="リソースの共有"
-              description="障害を持つ人たちがつながり、経験を共有し、サポートを受けることができるコミュニティに参加しましょう。"
+              icon={<BookOpen className="h-10 w-10 text-indigo-600" />}
+              title="情報の共有"
+              description="補聴器や人工内耳などの聴覚活用に関する情報交換や、日常生活での工夫を共有できます。"
             />
             <FeatureCard
               icon={<Shield className="h-10 w-10 text-indigo-600" />}
