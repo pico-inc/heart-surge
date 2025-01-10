@@ -12,6 +12,7 @@ interface Chat {
   participants: {
     id: string;
     username: string;
+    avatar_url: string;
   }[];
 }
 
@@ -27,6 +28,7 @@ interface PartnerData {
   user: {
     id: string;
     username: string;
+    avatar_url: string;
   };
 }
 
@@ -62,7 +64,8 @@ export default function Chats() {
             .select(`
               user:profiles (
                 id,
-                username
+                username,
+                avatar_url
               )
             `)
             .eq('chat_id', chat.chat.id)
@@ -124,9 +127,17 @@ export default function Chats() {
             <div className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-3">
-                  <div className="bg-indigo-100 p-2 rounded-full">
-                    <UserIcon className="h-5 w-5 text-indigo-600" />
-                  </div>
+                  {chat.participants[0]?.avatar_url ? (
+                    <img
+                      src={chat.participants[0]?.avatar_url}
+                      alt="Profile"
+                      className="w-9 h-9 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="bg-indigo-100 p-2 rounded-full">
+                      <UserIcon className="h-5 w-5 text-indigo-600" />
+                    </div>
+                  )}
                   <span className="font-medium text-gray-900">
                     {chat.participants[0]?.username || 'Unknown User'}
                   </span>

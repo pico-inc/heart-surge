@@ -4,6 +4,8 @@ import { Hash, ArrowLeft, MessageCircle, Users, User, Settings, Trash2 } from 'l
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
+import { getPrefectureName } from '../utils/prefecture';
+import { getOccupationName } from '../utils/occupation';
 
 interface Channel {
   id: string;
@@ -19,6 +21,7 @@ interface Channel {
 interface Participant {
   id: string;
   username: string;
+  avatar_url?: string;
   prefecture?: string;
   occupation?: string;
 }
@@ -68,7 +71,8 @@ export default function ChannelDetail() {
             id,
             username,
             prefecture,
-            occupation
+            occupation,
+            avatar_url
           )
         `)
         .eq('channel_id', id);
@@ -278,14 +282,22 @@ export default function ChannelDetail() {
                   to={`/users/${participant.id}`}
                   className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50"
                 >
-                  <div className="bg-indigo-100 p-2 rounded-full">
-                    <User className="h-5 w-5 text-indigo-600" />
-                  </div>
+                  {participant.avatar_url ? (
+                    <img
+                      src={participant.avatar_url}
+                      alt="Profile"
+                      className="w-9 h-9 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="bg-indigo-100 p-2 rounded-full">
+                      <User className="h-5 w-5 text-indigo-600" />
+                    </div>
+                  )}
                   <div>
                     <div className="font-medium text-gray-900">{participant.username}</div>
                     {(participant.prefecture || participant.occupation) && (
                       <div className="text-sm text-gray-500">
-                        {[participant.prefecture, participant.occupation]
+                        {[getPrefectureName(participant.prefecture), getOccupationName(participant.occupation)]
                           .filter(Boolean)
                           .join(' • ')}
                       </div>

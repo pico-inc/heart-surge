@@ -226,9 +226,17 @@ export default function UserDetail() {
         <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="bg-white p-3 rounded-full">
-                <UserIcon className="h-8 w-8 text-indigo-600" />
-              </div>
+              {user.avatar_url ? (
+                <img
+                  src={user.avatar_url}
+                  alt="Profile"
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+              ) : (
+                <div className="bg-white p-3 rounded-full">
+                  <UserIcon className="h-8 w-8 text-indigo-600" />
+                </div>
+              )}
               <div>
                 <h1 className="text-2xl font-bold text-white">{user.username}</h1>
                 {user.age_group && (

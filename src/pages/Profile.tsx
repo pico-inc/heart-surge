@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, ChangeEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Settings, Hash } from 'lucide-react';
+import { Settings, Hash, Camera, UserIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
@@ -68,6 +68,7 @@ export default function Profile() {
   const [profile, setProfile] = useState<ProfileData>(DEFAULT_PROFILE);
   const [joinedChannels, setJoinedChannels] = useState<JoinedChannel[]>([]);
   const [ownedChannels, setOwnedChannels] = useState<OwnedChannel[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -185,6 +186,78 @@ export default function Profile() {
     }
   };
 
+  const handleAvatarUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    try {
+      if (!event.target.files || event.target.files.length === 0) {
+        return;
+      }
+
+      const file = event.target.files[0];
+
+      if (!['image/jpeg', 'image/png'].includes(file.type)) {
+        toast.error('JPGまたはPNG形式の画像を選択してください');
+        return;
+      }
+
+      if (file.size > 3 * 1024 * 1024) {
+        toast.error('ファイルサイズは3MB以下にしてください');
+        return;
+      }
+
+      if (!user?.id) {
+        toast.error('ユーザー情報が取得できません');
+        return;
+      }
+
+      // タイムスタンプを含むファイル名を生成
+      const timestamp = new Date().getTime();
+      const fileExt = file.type === 'image/png' ? 'png' : 'jpg';
+      const fileName = `${user.id}/profile_${timestamp}.${fileExt}`;
+
+      // 既存の画像がある場合は削除
+      if (profile.avatar_url) {
+        const existingPath = profile.avatar_url.split('/').slice(-2).join('/'); // "user_id/filename" の形式を取得
+        const { error: removeError } = await supabase.storage
+          .from('profile_images')
+          .remove([existingPath]);
+
+        if (removeError) throw removeError;
+      }
+
+      // 新しい画像をアップロード
+      const { error: uploadError } = await supabase.storage
+        .from('profile_images')
+        .upload(fileName, file, {
+          contentType: file.type
+        });
+
+      if (uploadError) throw uploadError;
+
+      // 新しいURLを取得
+      const { data: urlData } = supabase.storage
+        .from('profile_images')
+        .getPublicUrl(fileName);
+
+      // プロフィールを更新
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: urlData.publicUrl })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      setProfile(prev => ({
+        ...prev,
+        avatar_url: urlData.publicUrl
+      }));
+
+      toast.success('プロフィール画像を更新しました');
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast.error('画像のアップロードに失敗しました');
+    }
+  };
+
   if (loading) {
     return <div className="text-center py-8">Loading...</div>;
   }
@@ -199,6 +272,39 @@ export default function Profile() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label htmlFor="avatar_url" className="block text-sm font-medium text-gray-700 mb-4">
+              プロフィール画像
+            </label>
+            <div className="relative">
+              {profile.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt="Profile"
+                  className="w-24 h-24 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-24 h-24 bg-indigo-100 p-3 rounded-full flex items-center justify-center">
+                  <UserIcon className="h-12 w-12 text-indigo-600" />
+                </div>
+              )}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                type="button"
+                className="absolute bottom-0 right-0 bg-indigo-600 text-white p-2 rounded-full hover:bg-indigo-700 transition-colors"
+              >
+                <Camera className="h-4 w-4" />
+              </button>
+            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleAvatarUpload}
+              accept="image/jpeg,image/png"
+              className="hidden"
+            />
+          </div>
+
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-700">
               ユーザー名

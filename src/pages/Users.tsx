@@ -62,9 +62,17 @@ export default function Users() {
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
           >
             <div className="flex items-center space-x-4 mb-4">
-              <div className="bg-indigo-100 p-3 rounded-full">
-                <UserIcon className="h-6 w-6 text-indigo-600" />
-              </div>
+              {user.avatar_url ? (
+                <img
+                  src={user.avatar_url}
+                  alt="Profile"
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+              ) : (
+                <div className="bg-indigo-100 p-3 rounded-full">
+                  <UserIcon className="h-6 w-6 text-indigo-600" />
+                </div>
+              )}
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">{user.username}</h2>
                 {user.age_group && (
