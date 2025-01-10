@@ -260,28 +260,28 @@ export default function UserDetail() {
 
         <div className="p-6 space-y-4">
           {user.prefecture && (
-            <div className="flex items-center space-x-3 text-gray-600">
-              <MapPin className="h-5 w-5" />
+            <div className="flex items-start space-x-3 text-gray-600">
+              <MapPin className="h-5 w-5 shrink-0" />
               <span>住んでいる都道府県: {getPrefectureName(user.prefecture)}</span>
             </div>
           )}
 
           {user.occupation && (
-            <div className="flex items-center space-x-3 text-gray-600">
-              <Briefcase className="h-5 w-5" />
+            <div className="flex items-start space-x-3 text-gray-600">
+              <Briefcase className="h-5 w-5 shrink-0" />
               <span>職業: {getOccupationName(user.occupation)}</span>
             </div>
           )}
 
           {user.device_info && (
-            <div className="flex items-center space-x-3 text-gray-600">
-              <Headphones className="h-5 w-5" />
+            <div className="flex items-start space-x-3 text-gray-600">
+              <Headphones className="h-5 w-5 shrink-0" />
               <span>使用している支援機器: {user.device_info}</span>
             </div>
           )}
 
-          <div className="flex items-center space-x-3 text-gray-600">
-            <Calendar className="h-5 w-5" />
+          <div className="flex items-start space-x-3 text-gray-600">
+            <Calendar className="h-5 w-5 shrink-0" />
             <span>登録日: {new Date(user.created_at).toLocaleDateString()}</span>
           </div>
         </div>
