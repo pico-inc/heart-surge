@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Users, MessageCircle, Shield, BookOpen } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Home() {
+  const { user } = useAuth();
   return (
     <div className="space-y-16">
       {/* Hero Section */}
@@ -13,7 +15,7 @@ export default function Home() {
             聴覚活用で育ってきた難聴者同士がつながり、難聴者同士だからこそ話せたり、経験を共有し合えるコミュニティに参加しましょう。
           </p>
           <Link
-            to="/register"
+            to={user ? "/channels" : "/register"}
             className="bg-white text-indigo-600 px-8 py-3 rounded-full font-semibold text-lg hover:bg-gray-100 transition-colors"
           >
             コミュニティに参加する
