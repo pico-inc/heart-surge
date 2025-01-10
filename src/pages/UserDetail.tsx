@@ -224,7 +224,7 @@ export default function UserDetail() {
       {/* User Profile */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div className="flex items-center space-x-4">
               {user.avatar_url ? (
                 <img
@@ -245,13 +245,15 @@ export default function UserDetail() {
               </div>
             </div>
             {currentUser?.id !== user.id && (
-              <button
-                onClick={startChat}
-                className="bg-white text-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-50 transition-colors flex items-center space-x-2"
-              >
-                <MessageCircle className="h-5 w-5" />
-                <span>メッセージ</span>
-              </button>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={startChat}
+                  className="bg-white text-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-50 transition-colors flex items-center space-x-2"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  <span>メッセージ</span>
+                </button>
+              </div>
             )}
           </div>
         </div>
