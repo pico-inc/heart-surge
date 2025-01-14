@@ -11,7 +11,8 @@ interface ProfileData {
   age_group: string;
   occupation: string;
   avatar_url: string;
-  device_info: string;
+  device_type: string;
+  hearing_level: string;
 }
 
 interface DatabaseProfile {
@@ -21,7 +22,8 @@ interface DatabaseProfile {
   age_group: string;
   occupation: string;
   avatar_url: string;
-  device_info: string;
+  device_type: string;
+  hearing_level: string;
 }
 
 interface OwnedChannel {
@@ -58,7 +60,8 @@ const DEFAULT_PROFILE: ProfileData = {
   age_group: '',
   occupation: '',
   avatar_url: '',
-  device_info: '',
+  device_type: '',
+  hearing_level: '',
 };
 
 export default function Profile() {
@@ -89,7 +92,8 @@ export default function Profile() {
             age_group: data.age_group || '',
             occupation: data.occupation || '',
             avatar_url: data.avatar_url || '',
-            device_info: data.device_info || '',
+            device_type: data.device_type || '',
+            hearing_level: data.hearing_level || '',
           });
         }
       } catch (error: unknown) {
@@ -418,17 +422,38 @@ export default function Profile() {
           </div>
 
           <div>
-            <label htmlFor="device_info" className="block text-sm font-medium text-gray-700">
-              使用している支援機器
+            <label htmlFor="device_type" className="block text-sm font-medium text-gray-700">
+              装用機器
             </label>
-            <textarea
-              id="device_info"
-              value={profile.device_info || ''}
-              onChange={(e) => setProfile({ ...profile, device_info: e.target.value })}
-              rows={3}
+            <select
+              id="device_type"
+              value={profile.device_type || ''}
+              onChange={(e) => setProfile({ ...profile, device_type: e.target.value })}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              placeholder="使用している補聴器などの支援機器について自由に記入してください"
-            />
+            >
+              <option value="">装用機器を選択</option>
+              <option value="cochlear_implant">人工内耳</option>
+              <option value="hearing_aid">補聴器</option>
+              <option value="both">人工内耳と補聴器</option>
+              <option value="none">装用していない</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="hearing_level" className="block text-sm font-medium text-gray-700">
+              聴力レベル
+            </label>
+            <select
+              id="hearing_level"
+              value={profile.hearing_level || ''}
+              onChange={(e) => setProfile({ ...profile, hearing_level: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            >
+              <option value="">聴力レベルを選択</option>
+              <option value="mild">軽度難聴</option>
+              <option value="moderate">中等度難聴</option>
+              <option value="severe">重度難聴</option>
+            </select>
           </div>
 
           <button

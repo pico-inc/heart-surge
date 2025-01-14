@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { User as UserIcon, MapPin, Briefcase, Calendar, ArrowLeft, MessageCircle, Hash, Headphones } from 'lucide-react';
+import { User as UserIcon, MapPin, Briefcase, Calendar, ArrowLeft, MessageCircle, Hash, Headphones, Ear } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import { getPrefectureName } from '../utils/prefecture';
 import { getAgeGroupName } from '../utils/ageGroup';
 import { getOccupationName } from '../utils/occupation';
+import { getDeviceTypeName, getHearingLevelName } from '../utils/hearingAttributes';
 
 interface User {
   id: string;
@@ -15,7 +16,8 @@ interface User {
   age_group: string;
   occupation: string;
   avatar_url: string;
-  device_info: string;
+  device_type: string;
+  hearing_level: string;
   created_at: string;
 }
 
@@ -273,10 +275,17 @@ export default function UserDetail() {
             </div>
           )}
 
-          {user.device_info && (
+          {user.device_type && (
             <div className="flex items-start space-x-3 text-gray-600">
               <Headphones className="h-5 w-5 shrink-0" />
-              <span>使用している支援機器: {user.device_info}</span>
+              <span>装用機器: {getDeviceTypeName(user.device_type)}</span>
+            </div>
+          )}
+
+          {user.hearing_level && (
+            <div className="flex items-start space-x-3 text-gray-600">
+              <Ear className="h-5 w-5 shrink-0" />
+              <span>聴力レベル: {getHearingLevelName(user.hearing_level)}</span>
             </div>
           )}
 
